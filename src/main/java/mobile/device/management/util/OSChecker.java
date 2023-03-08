@@ -21,15 +21,15 @@ public class OSChecker {
         return detectedOS;
     }
 
-    public boolean isWindows() {
+    public static boolean isWindows() {
         return getOS().equals(OSType.WINDOWS);
     }
 
-    public boolean isLinux() {
+    public static boolean isLinux() {
         return getOS().equals(OSType.LINUX);
     }
 
-    public boolean isMacOS() {
+    public static boolean isMacOS() {
         return getOS().equals(OSType.MACOS);
     }
 }

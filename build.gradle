@@ -10,7 +10,52 @@ repositories {
 }
 
 dependencies {
+    implementation(
+            // Use TestNG framework, also requires calling test.useTestNG() below
+            "org.testng:testng:7.5",
+
+            // Jackson Json parser for Java
+            "com.fasterxml.jackson.core:jackson-databind:2.14.2",
+            // Jackson support for properties format file (*.properties)
+            "com.fasterxml.jackson.dataformat:jackson-dataformat-properties:2.14.2",
+
+            // Log4j2 api, core, and slf4j bridge
+            "org.slf4j:slf4j-api:2.0.6",
+            "org.apache.logging.log4j:log4j-core:2.19.0",
+            "org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0",
+    )
+
+    compileOnly(
+            // Lombok
+            "org.projectlombok:lombok:1.18.26"
+    )
+    annotationProcessor(
+            // Lombok
+            "org.projectlombok:lombok:1.18.26"
+    )
 }
 
 test {
+    // pass all system properties to java code
+    systemProperties System.getProperties()
+
+    // Use TestNG for unit tests.
+    useTestNG() {
+    }
+
+    outputs.upToDateWhen { false }
+    testLogging {
+        events = ["standardError", "skipped", "failed"]
+        exceptionFormat = "full"
+    }
+
+    onOutput { descriptor, event ->
+        if (event.destination == TestOutputEvent.Destination.StdOut) {
+            logger.lifecycle(event.message.replaceFirst(/\s+$/, ""))
+        }
+    }
+}
+
+tasks.withType(Javadoc).configureEach {
+    enabled = false
 }
