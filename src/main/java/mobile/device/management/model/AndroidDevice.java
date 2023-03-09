@@ -3,7 +3,7 @@ package mobile.device.management.model;
 import lombok.Value;
 
 @Value
-public class Device {
+public class AndroidDevice {
     String udid;
     String transportId;
     String deviceName;

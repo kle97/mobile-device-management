@@ -12,7 +12,7 @@ repositories {
 dependencies {
     implementation(
             // Use TestNG framework, also requires calling test.useTestNG() below
-            "org.testng:testng:7.5",
+            "org.testng:testng:7.7.0",
 
             // Jackson Json parser for Java
             "com.fasterxml.jackson.core:jackson-databind:2.14.2",
