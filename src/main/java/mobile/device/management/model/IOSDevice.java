@@ -3,7 +3,7 @@ package mobile.device.management.model;
 import lombok.Value;
 
 @Value
-public class AndroidDevice {
+public class IOSDevice {
     String udid;
     String transportId;
     String deviceName;
@@ -11,5 +11,5 @@ public class AndroidDevice {
     String platformVersion;
     int appiumPort;
     int nodePort;
-    int systemPort;
+    int wdaLocalPort;
 }

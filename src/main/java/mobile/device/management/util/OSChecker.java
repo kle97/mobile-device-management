@@ -1,5 +1,7 @@
 package mobile.device.management.util;
 
+import mobile.device.management.constant.OSType;
+
 import java.util.Locale;
 
 public class OSChecker {

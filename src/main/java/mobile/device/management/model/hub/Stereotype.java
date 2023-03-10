@@ -1,8 +1,9 @@
-package mobile.device.management.model;
+package mobile.device.management.model.hub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import mobile.device.management.model.JsonBaseConfig;
 
 @Value
 @EqualsAndHashCode(callSuper = true)

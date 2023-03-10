@@ -1,4 +1,4 @@
-package mobile.device.management.process;
+package mobile.device.management.service;
 
 import lombok.extern.slf4j.Slf4j;
 import mobile.device.management.util.OSChecker;

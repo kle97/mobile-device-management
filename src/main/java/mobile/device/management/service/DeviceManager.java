@@ -1,13 +1,15 @@
-package mobile.device.management.process;
+package mobile.device.management.service;
 
 import com.fasterxml.jackson.databind.ObjectReader;
 import lombok.extern.slf4j.Slf4j;
 import mobile.device.management.model.AndroidDevice;
-import mobile.device.management.model.HubStatus;
-import mobile.device.management.model.Node;
+import mobile.device.management.model.AppConfig;
+import mobile.device.management.model.hub.HubStatus;
+import mobile.device.management.model.hub.Node;
 import mobile.device.management.util.JacksonMapper;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -15,9 +17,15 @@ import java.util.concurrent.TimeUnit;
 public class DeviceManager {
 
     private final ObjectReader jsonReader = JacksonMapper.readerFor(DeviceManager.class);
+    private final AppConfig appConfig;
 
-    public static void main(String[] args) {
-        new DeviceManager().scheduleCheckDevices();
+    private static int nextAppiumPort = 4723;
+    private static int nextSystemPort = 8200;
+    private static int nextWdaLocalPort = 8100;
+    private static int nextNodeServerPort = 5555;
+    
+    public DeviceManager(AppConfig appConfig) {
+        this.appConfig = appConfig;
     }
 
     public void scheduleCheckDevices() {
@@ -42,13 +50,15 @@ public class DeviceManager {
                 String deviceName = this.getDeviceName(line);
                 String platformName = "Android";
                 String platformVersion = this.getPlatformVersion(transportId);
+                int appiumPort = this.getNextAppiumPort();
+                int nodePort = this.getNextNodeServerPort();
+                int systemPort = this.getNextSystemPort();
+                log.info("Udid: {}, deviceName: {}, platformName: {}, platformVersion: {}, transportId: {}",
+                         udid, deviceName, platformName, platformVersion, transportId);
 
-                AndroidDevice device = new AndroidDevice(udid, transportId, deviceName, platformName, platformVersion);
-                AppiumConfig.createConfigFile(device);
-                log.info("UDID: " + udid);
-                log.info("Transport id: " + transportId);
-                log.info("Device name: " + deviceName);
-                log.info("Platform version: " + platformVersion);
+                AndroidDevice device = new AndroidDevice(udid, transportId, deviceName, platformName, platformVersion, 
+                                                         appiumPort, nodePort, systemPort);
+                AppiumConfig.createConfigFile(this.appConfig.getConfigDir(), device);
             }
         }
     }
@@ -85,7 +95,8 @@ public class DeviceManager {
     }
 
     public void getHubStatus() {
-        List<String> resultLines = CommandLine.run("curl http://localhost:4444/status");
+        String statusAddress = String.format("http://%s:%d/status", appConfig.getHubAddress(), appConfig.getHubPort());
+        List<String> resultLines = CommandLine.run("curl " + statusAddress);
         String jsonString = String.join("\n", resultLines);
         int jsonStartIndex = jsonString.indexOf("{\n");
         jsonStartIndex = Math.max(jsonStartIndex, 0);
@@ -99,5 +110,53 @@ public class DeviceManager {
             log.debug(e.getMessage());
         }
 
+    }
+
+    private int getNextAppiumPort() {
+        while (isPortOccupied(nextAppiumPort)) {
+            nextAppiumPort++;
+        }
+        int returnPort = nextAppiumPort;
+        nextAppiumPort++;
+        return returnPort;
+    }
+
+    private int getNextSystemPort() {
+        while (isPortOccupied(nextSystemPort)) {
+            nextSystemPort++;
+        }
+        int returnPort = nextSystemPort;
+        nextSystemPort++;
+        return returnPort;
+    }
+
+    private int getNextWdaLocalPort() {
+        while (isPortOccupied(nextWdaLocalPort)) {
+            nextWdaLocalPort++;
+        }
+        int returnPort = nextWdaLocalPort;
+        nextWdaLocalPort++;
+        return returnPort;
+    }
+
+    private int getNextNodeServerPort() {
+        while (isPortOccupied(nextNodeServerPort)) {
+            nextNodeServerPort++;
+        }
+        int returnPort = nextNodeServerPort;
+        nextNodeServerPort++;
+        return returnPort;
+    }
+    
+    private boolean isPortOccupied(int port) {
+        ServerSocket serverSocket;
+        try {
+            serverSocket = new ServerSocket(port);
+            serverSocket.close();
+        } catch (IOException ex) {
+            log.trace("Port {} is occupied!", port);
+            return true;
+        }
+        return false;
     }
 }

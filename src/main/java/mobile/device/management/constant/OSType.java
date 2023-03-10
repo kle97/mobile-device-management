@@ -1,4 +1,4 @@
-package mobile.device.management.util;
+package mobile.device.management.constant;
 
 public enum OSType {
     WINDOWS("Windows"),

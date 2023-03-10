@@ -1,4 +1,4 @@
-package mobile.device.management.model;
+package mobile.device.management.model.hub;
 
 import lombok.Value;
 
