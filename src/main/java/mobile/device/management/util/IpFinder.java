@@ -1,4 +1,4 @@
-package mobile.device.management.service;
+package mobile.device.management.util;
 
 import lombok.extern.slf4j.Slf4j;
 

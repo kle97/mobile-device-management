@@ -7,7 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class ScheduledTask {
+public class TaskScheduler {
 
     public static void schedulePeriodicTask(Runnable command, long initialDelay, long period, long duration) {
         schedulePeriodicTask(command, initialDelay, period, duration, TimeUnit.MILLISECONDS);

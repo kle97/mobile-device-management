@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -21,16 +22,21 @@ public class FileManager {
     private static final Charset ENCODING = StandardCharsets.UTF_8;
     private static final JavaPropsMapper propsMapper = new JavaPropsMapper();
 
-    public static void writeFile(List<String> lines, String filePath) {
-        Path path = Paths.get(filePath);
-        try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, ENCODING)) {
+    public static Path writeFile(List<String> lines, String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+            BufferedWriter bufferedWriter = Files.newBufferedWriter(path, ENCODING);
             for (String line: lines) {
                 bufferedWriter.write(line);
                 bufferedWriter.newLine();
             }
-        } catch (IOException e) {
+            bufferedWriter.close();
+            log.info("File created/modified at: {}", path.toAbsolutePath());
+            return path;
+        } catch (IOException | InvalidPathException e) {
             log.debug(e.getMessage());
         }
+        return null;
     }
 
     public static List<String> readFile(String fileName) {

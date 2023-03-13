@@ -15,6 +15,9 @@ public class Stereotype extends JsonBaseConfig {
     @JsonProperty("appium:systemPort")
     String systemPort;
 
+    @JsonProperty("appium:wdaLocalPort")
+    String wdaLocalPort;
+
     @JsonProperty("appium:deviceName")
     String deviceName;
 
@@ -23,5 +26,6 @@ public class Stereotype extends JsonBaseConfig {
     @JsonProperty("appium:platformVersion")
     String platformVersion;
 
+    @JsonProperty("appium:automationName")
     String automationName;
 }

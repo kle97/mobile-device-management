@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'application'
 }
 
 group 'mobile'
@@ -9,11 +9,27 @@ repositories {
     mavenCentral()
 }
 
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    destinationDirectory.set(file("libs"))
+    
+    manifest {
+        attributes(
+            "Main-Class": "mobile.device.management.Application"
+        )
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 dependencies {
     implementation(
             // Use TestNG framework, also requires calling test.useTestNG() below
             "org.testng:testng:7.7.0",
-
+            
             // Jackson Json parser for Java
             "com.fasterxml.jackson.core:jackson-databind:2.14.2",
             // Jackson support for properties format file (*.properties)

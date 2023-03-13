@@ -1,21 +1,27 @@
 package mobile.device.management.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
 import lombok.Value;
+import mobile.device.management.util.IpFinder;
 
 @Value
 public class AppConfig {
     
-    @JsonProperty("config.dir")
-    String configDir;
+    @JsonProperty("host.address")
+    String hostIpAddress = IpFinder.getHostIpAddress();
     
     @JsonProperty("hub.address")
-    String hubAddress;
+    String hubIpAddress = hostIpAddress;
 
     @JsonProperty("hub.port")
-    int hubPort;
+    int hubPort = 4444;
     
+    @JsonProperty("selenium.server.path")
+    String seleniumServerPath = "libs/selenium-server.jar";
+
+    @JsonProperty("config.dir")
+    String configDirectory = "config";
     
+    @JsonProperty("node.tracing")
+    boolean nodeTracing = false;
 }
