@@ -40,3 +40,4 @@ bin/
 config/
 !config/hub.toml
 libs/
+!libs/selenium-server.jar

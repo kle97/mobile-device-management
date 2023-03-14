@@ -1,9 +1,9 @@
 plugins {
-    id 'application'
+    id "application"
 }
 
-group 'mobile'
-version '1.0-SNAPSHOT'
+group "mobile"
+version "1.0"
 
 repositories {
     mavenCentral()
@@ -13,10 +13,12 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     destinationDirectory.set(file("libs"))
-    
+
     manifest {
         attributes(
-            "Main-Class": "mobile.device.management.Application"
+                "Main-Class": "mobile.device.management.Application",
+                "Manifest-Version": "1.0", 
+                "Multi-Release": true
         )
     }
 
@@ -27,9 +29,6 @@ jar {
 
 dependencies {
     implementation(
-            // Use TestNG framework, also requires calling test.useTestNG() below
-            "org.testng:testng:7.7.0",
-            
             // Jackson Json parser for Java
             "com.fasterxml.jackson.core:jackson-databind:2.14.2",
             // Jackson support for properties format file (*.properties)
@@ -39,6 +38,11 @@ dependencies {
             "org.slf4j:slf4j-api:2.0.6",
             "org.apache.logging.log4j:log4j-core:2.19.0",
             "org.apache.logging.log4j:log4j-slf4j2-impl:2.19.0",
+    )
+    
+    testImplementation(
+            // Use TestNG framework, also requires calling test.useTestNG() below
+            "org.testng:testng:7.7.0",
     )
 
     compileOnly(

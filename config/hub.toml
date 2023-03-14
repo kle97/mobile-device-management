@@ -1,0 +1,9 @@
+[distributor]
+healthcheck-interval = 60
+reject-unsupported-caps = true
+
+[server]
+port = 4444
+
+[logging]
+tracing = false

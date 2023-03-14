@@ -92,13 +92,13 @@ public class CommandLine {
     }
     
     public static void closeBackgroundProcesses() {
-        // for (BufferedReader bufferedReader: backgroundBufferedReader) {
-        //     try {
-        //         bufferedReader.close();
-        //     } catch (IOException e) {
-        //         log.debug(e.getMessage());
-        //     }
-        // }
+        for (BufferedReader bufferedReader: backgroundBufferedReader) {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                log.debug(e.getMessage());
+            }
+        }
         
         for (Process process: backgroundProcesses) {
             process.descendants().forEach(ProcessHandle::destroy);

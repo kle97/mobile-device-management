@@ -10,7 +10,7 @@ import mobile.device.management.util.FileManager;
 @Slf4j
 public class Application {
     public static void main(String[] args) {
-        AppConfig appConfig = FileManager.readPropertiesFileAs(AppConstant.PROPERTIES_PATH, AppConfig.class);
+        AppConfig appConfig = FileManager.readPropertiesFileAs(AppConstant.PROPERTIES_PATH, AppConfig.class, true);
         appConfig = appConfig != null ? appConfig : new AppConfig();
         
         DeviceManager deviceManager = new DeviceManager(appConfig);

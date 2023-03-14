@@ -54,16 +54,24 @@ public class DeviceConfig {
 
     public Path createAppiumConfigFile() {
         try {
-            Files.createDirectories(Paths.get(this.appConfig.getConfigDirectory()));
+            Files.createDirectories(Paths.get(appConfig.getConfigDirectory()));
 
             ObjectNode parentNode = (ObjectNode) objectReader.createObjectNode();
             ObjectNode node = (ObjectNode) objectReader.createObjectNode();
             parentNode.set("server", node);
-            node.put("address", this.appConfig.getHostIpAddress());
+            node.put("address", appConfig.getHostIpAddress());
             node.put("port", this.appiumPort);
-            node.put("base-path", "/wd/hub");
+            node.put("base-path", appConfig.getBasePath());
+            node.put("keep-alive-timeout", appConfig.getKeepAliveTimeout());
             ArrayNode driverArray = (ArrayNode) objectReader.createArrayNode();
             node.set("use-drivers", driverArray.add(this.device.getAutomationName().toLowerCase()));
+            ArrayNode allowInsecureArray = (ArrayNode) objectReader.createArrayNode();
+            for (String insecure: appConfig.getAllowInsecure().split(",")) {
+                if (!insecure.isBlank()) {
+                    allowInsecureArray.add(insecure);
+                }
+            }
+            node.set("allow-insecure", allowInsecureArray);
             node.set("default-capabilities", this.defaultCapabilities);
 
             String filePath = this.appConfig.getConfigDirectory() + "/" + this.device.getUdid() + ".json";
@@ -88,11 +96,10 @@ public class DeviceConfig {
             lines.add("hub = " + String.format("'http://%s:%d'", appConfig.getHubIpAddress(), appConfig.getHubPort()));
             lines.add("detect-drivers = false");
             lines.add("max-sessions = 1");
-            lines.add("register-cycle = 10");
-            lines.add("session-timeout = 300");
+            lines.add("session-timeout = " + appConfig.getNodeSessionTimeout());
             lines.add("");
             lines.add("[relay]");
-            lines.add("url = " + String.format("'http://%s:%d/wd/hub'", appConfig.getHostIpAddress(), this.appiumPort));
+            lines.add("url = " + String.format("'http://%s:%d%s'", appConfig.getHostIpAddress(), this.appiumPort, appConfig.getBasePath()));
             lines.add("status-endpoint = '/status'");
             lines.add("[[relay.configs]]");
             lines.add("max-sessions = 1");

@@ -32,8 +32,8 @@ public class DeviceManager {
     }
 
     public void scheduleCheckDevices() {
-        TaskScheduler.schedulePeriodicTask(this::checkDevices, 0, 30, TimeUnit.SECONDS,
-                                           180, TimeUnit.SECONDS);
+        TaskScheduler.schedulePeriodicTask(this::checkDevices, 0, 60, TimeUnit.SECONDS,
+                                           3600, TimeUnit.SECONDS);
     }
 
     public void checkDevices() {
@@ -65,7 +65,7 @@ public class DeviceManager {
     
     public boolean startAppiumServer(Path appiumConfigFile) {
         boolean serverStarted = false;
-        List<String> resultLines = CommandLine.runAndWait("appium --config " + appiumConfigFile.toAbsolutePath(), 15);
+        List<String> resultLines = CommandLine.runAndWait("appium --config " + appiumConfigFile.toAbsolutePath() , 15);
         for (String line: resultLines) {
             log.info(line);
             if (line.contains("Appium REST http interface listener started")) {
