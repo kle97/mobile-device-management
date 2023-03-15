@@ -36,7 +36,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
-
+log/
 config/
 !config/hub.toml
 libs/

@@ -11,9 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class CommandLine {
-    
+
     private static final List<Process> backgroundProcesses = new ArrayList<>();
-    private static final List<BufferedReader> backgroundBufferedReader = new ArrayList<>();
 
     public static List<String> run(String... commands) {
         String command = String.join(" ", commands);
@@ -78,28 +77,13 @@ public class CommandLine {
             backgroundProcesses.add(process);
             log.info("Running and waiting {} seconds for command: {}", timeoutInSecond, command);
             process.waitFor(timeoutInSecond, TimeUnit.SECONDS);
-            
-            String line;
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            while (bufferedReader.ready() && (line = bufferedReader.readLine()) != null) {
-                commandLineResults.add(line);
-            }
-            backgroundBufferedReader.add(bufferedReader);
         } catch (IOException | InterruptedException e) {
             log.debug(e.getMessage());
         }
         return commandLineResults;
     }
-    
+
     public static void closeBackgroundProcesses() {
-        for (BufferedReader bufferedReader: backgroundBufferedReader) {
-            try {
-                bufferedReader.close();
-            } catch (IOException e) {
-                log.debug(e.getMessage());
-            }
-        }
-        
         for (Process process: backgroundProcesses) {
             process.descendants().forEach(ProcessHandle::destroy);
             try {

@@ -28,7 +28,7 @@ public class DeviceConfig {
     private final int appiumPort;
     private final int nodePort;
     private final ObjectNode defaultCapabilities;
-    
+
     public DeviceConfig(AppConfig appConfig, Device device) {
         this.appConfig = appConfig;
         this.device = device;
@@ -63,6 +63,7 @@ public class DeviceConfig {
             node.put("port", this.appiumPort);
             node.put("base-path", appConfig.getBasePath());
             node.put("keep-alive-timeout", appConfig.getKeepAliveTimeout());
+            node.put("log-no-colors", true);
             ArrayNode driverArray = (ArrayNode) objectReader.createArrayNode();
             node.set("use-drivers", driverArray.add(this.device.getAutomationName().toLowerCase()));
             ArrayNode allowInsecureArray = (ArrayNode) objectReader.createArrayNode();

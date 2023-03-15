@@ -10,8 +10,13 @@ import mobile.device.management.util.CommandLine;
 import mobile.device.management.util.JacksonMapper;
 import mobile.device.management.util.OSChecker;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,9 +29,9 @@ public class DeviceManager {
 
     private final ObjectReader jsonReader = JacksonMapper.readerFor(DeviceManager.class);
     private final AppConfig appConfig;
-    
+
     private final Map<String, DeviceConfig> registeredDevices = new HashMap<>();
-    
+
     public DeviceManager(AppConfig appConfig) {
         this.appConfig = appConfig;
     }
@@ -41,6 +46,8 @@ public class DeviceManager {
         if (OSChecker.isMacOS()) {
             currentConnectedDevices.addAll(XctraceService.getConnectedDevices());
         }
+
+        boolean isAllRegistered = true;
         for (Device device: currentConnectedDevices) {
             if (!this.registeredDevices.containsKey(device.getUdid())) {
                 DeviceConfig deviceConfig = new DeviceConfig(this.appConfig, device);
@@ -48,11 +55,15 @@ public class DeviceManager {
                 Path nodeConfigFile = deviceConfig.createNodeConfigFile();
                 if (this.startAppiumServer(appiumConfigFile) && this.registerNode(nodeConfigFile)) {
                     this.registeredDevices.put(device.getUdid(), deviceConfig);
+                } else {
+                    ProcessManager.killProcess(deviceConfig.getAppiumPort());
+                    ProcessManager.killProcess(deviceConfig.getNodePort());
+                    isAllRegistered = false;
                 }
             }
         }
-        
-        if (currentConnectedDevices.size() < registeredDevices.size()) {
+
+        if (currentConnectedDevices.size() < registeredDevices.size() || !isAllRegistered) {
             Set<String> currentDeviceUdids = currentConnectedDevices.stream().map(Device::getUdid).collect(Collectors.toSet());
             for (Map.Entry<String, DeviceConfig> entry: registeredDevices.entrySet()) {
                 if (!currentDeviceUdids.contains(entry.getKey())) {
@@ -62,28 +73,48 @@ public class DeviceManager {
             }
         }
     }
-    
+
     public boolean startAppiumServer(Path appiumConfigFile) {
         boolean serverStarted = false;
-        List<String> resultLines = CommandLine.runAndWait("appium --config " + appiumConfigFile.toAbsolutePath() , 15);
-        for (String line: resultLines) {
-            log.info(line);
-            if (line.contains("Appium REST http interface listener started")) {
-                serverStarted = true;
+        String configFilePath = appiumConfigFile.toAbsolutePath().toString();
+        String logFilePath =  configFilePath.replace(appConfig.getConfigDirectory(), appConfig.getLogDirectory())
+                                            .replace(".json", "-appium.log");
+        CommandLine.runAndWait(String.format("appium --config %s > %s 2>&1", configFilePath, logFilePath), 15);
+
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(logFilePath), StandardCharsets.UTF_8)){
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("Appium REST http interface listener started")) {
+                    log.info(line);
+                    serverStarted = true;
+                    break;
+                }
             }
+        } catch (IOException | InvalidPathException e) {
+            log.debug(e.getMessage());
         }
         return serverStarted;
     }
-    
+
     public boolean registerNode(Path nodeConfigFile) {
         boolean nodeRegistered = false;
-        List<String> resultLines = CommandLine.runAndWait("java -jar " + appConfig.getSeleniumServerPath() + " node --config " 
-                                                                  + nodeConfigFile.toAbsolutePath(), 15);
-        for (String line: resultLines) {
-            log.info(line);
-            if (line.contains("Node has been added")) {
-                nodeRegistered = true;
+        String configFilePath = nodeConfigFile.toAbsolutePath().toString();
+        String logFilePath =  configFilePath.replace(appConfig.getConfigDirectory(), appConfig.getLogDirectory())
+                                            .replace(".toml", "-node.log");
+        CommandLine.runAndWait(String.format("java -jar %s node --config %s > %s 2>&1",
+                                             appConfig.getSeleniumServerPath(), configFilePath, logFilePath), 15);
+
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(logFilePath), StandardCharsets.UTF_8)){
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("Node has been added")) {
+                    log.info(line);
+                    nodeRegistered = true;
+                    break;
+                }
             }
+        } catch (IOException | InvalidPathException e) {
+            log.debug(e.getMessage());
         }
         return nodeRegistered;
     }
