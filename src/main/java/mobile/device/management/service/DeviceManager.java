@@ -37,8 +37,7 @@ public class DeviceManager {
     }
 
     public void scheduleCheckDevices() {
-        TaskScheduler.schedulePeriodicTask(this::checkDevices, 0, 60, TimeUnit.SECONDS,
-                                           3600, TimeUnit.SECONDS);
+        TaskScheduler.schedulePeriodicTask(this::checkDevices, 0, 60, TimeUnit.SECONDS);
     }
 
     public void checkDevices() {

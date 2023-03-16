@@ -14,14 +14,9 @@ public class Application {
         appConfig = appConfig != null ? appConfig : new AppConfig();
 
         DeviceManager deviceManager = new DeviceManager(appConfig);
-        // Runtime.getRuntime().addShutdownHook(new Thread(deviceManager::closeAppiumServers));
-        // Runtime.getRuntime().addShutdownHook(new Thread(deviceManager::unregisteredNodes));
+        Runtime.getRuntime().addShutdownHook(new Thread(deviceManager::closeAppiumServers));
+        Runtime.getRuntime().addShutdownHook(new Thread(deviceManager::unregisteredNodes));
         Runtime.getRuntime().addShutdownHook(new Thread(CommandLine::closeBackgroundProcesses));
-        try {
-            deviceManager.scheduleCheckDevices();
-        } catch (Exception e) {
-            CommandLine.closeBackgroundProcesses();
-            throw e;
-        }
+        deviceManager.scheduleCheckDevices();
     }
 }

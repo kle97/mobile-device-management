@@ -9,6 +9,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class TaskScheduler {
 
+    public static void schedulePeriodicTask(Runnable command, long initialDelay, long period, TimeUnit timeUnit) {
+        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        scheduledExecutorService.scheduleAtFixedRate(command, initialDelay, period, timeUnit);
+        log.info("Service is scheduled to run every {} {} with {} {} delay!",
+                 period, getTimeUnitName(timeUnit), initialDelay, getTimeUnitName(timeUnit));
+    }
+
     public static void schedulePeriodicTask(Runnable command, long initialDelay, long period, long duration) {
         schedulePeriodicTask(command, initialDelay, period, duration, TimeUnit.MILLISECONDS);
     }

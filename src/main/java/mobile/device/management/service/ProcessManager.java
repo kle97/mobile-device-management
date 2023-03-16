@@ -26,6 +26,8 @@ public class ProcessManager {
                     pids.add(line.substring(line.lastIndexOf(" ")));
                 }
             }
+        } else if (OSChecker.isLinux()) {
+            
         }
         return pids;
     }
