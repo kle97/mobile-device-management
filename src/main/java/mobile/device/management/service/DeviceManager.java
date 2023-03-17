@@ -17,10 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -37,7 +34,7 @@ public class DeviceManager {
     }
 
     public void scheduleCheckDevices() {
-        TaskScheduler.schedulePeriodicTask(this::checkDevices, 0, 60, TimeUnit.SECONDS);
+        TaskScheduler.schedulePeriodicTask(this::checkDevices, 0, appConfig.getScanPeriodInSecond(), TimeUnit.SECONDS);
     }
 
     public void checkDevices() {
@@ -55,19 +52,24 @@ public class DeviceManager {
                 if (this.startAppiumServer(appiumConfigFile) && this.registerNode(nodeConfigFile)) {
                     this.registeredDevices.put(device.getUdid(), deviceConfig);
                 } else {
+                    deviceConfig.rollbackPorts();
                     ProcessManager.killProcess(deviceConfig.getAppiumPort());
                     ProcessManager.killProcess(deviceConfig.getNodePort());
                     isAllRegistered = false;
+                    log.info("Couldn't register device with udid: {}!", device.getUdid());
                 }
             }
         }
 
         if (currentConnectedDevices.size() < registeredDevices.size() || !isAllRegistered) {
             Set<String> currentDeviceUdids = currentConnectedDevices.stream().map(Device::getUdid).collect(Collectors.toSet());
-            for (Map.Entry<String, DeviceConfig> entry: registeredDevices.entrySet()) {
+            for (Iterator<Map.Entry<String, DeviceConfig>> iterator = registeredDevices.entrySet().iterator(); iterator.hasNext(); ) {
+                Map.Entry<String, DeviceConfig> entry = iterator.next();
                 if (!currentDeviceUdids.contains(entry.getKey())) {
                     ProcessManager.killProcess(entry.getValue().getAppiumPort());
                     ProcessManager.killProcess(entry.getValue().getNodePort());
+                    iterator.remove();
+                    log.info("Detected device unplugged! Unregistered device with udid: {}!", entry.getKey());
                 }
             }
         }

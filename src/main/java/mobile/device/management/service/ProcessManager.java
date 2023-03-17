@@ -9,13 +9,17 @@ import java.util.List;
 
 @Slf4j
 public class ProcessManager {
-    
+
     public static void killProcess(int port) {
         for (String pid: getPIDs(port)) {
-            CommandLine.run("taskkill /F /PID " + pid).forEach(log::info);
+            if (OSChecker.isWindows()) {
+                CommandLine.run("taskkill /F /PID " + pid).forEach(log::info);
+            } else if (OSChecker.isLinux() || OSChecker.isMacOS()) {
+                CommandLine.run("kill -9 " + pid).forEach(log::info);
+            }
         }
     }
-    
+
     public static List<String> getPIDs(int port) {
         List<String> pids = new ArrayList<>();
         if (OSChecker.isWindows()) {
@@ -26,8 +30,14 @@ public class ProcessManager {
                     pids.add(line.substring(line.lastIndexOf(" ")));
                 }
             }
-        } else if (OSChecker.isLinux()) {
-            
+        } else if (OSChecker.isLinux() || OSChecker.isMacOS()) {
+            List<String> resultLines = CommandLine.run("lsof -t -i :" + port);
+            for (String line: resultLines) {
+                log.info(line);
+                if (line.matches("\\d+")) {
+                    pids.add(line);
+                }
+            }
         }
         return pids;
     }

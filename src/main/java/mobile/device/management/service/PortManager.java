@@ -60,4 +60,15 @@ public class PortManager {
         }
         return false;
     }
+    
+    public static void rollbackPorts(int appiumPort, int nodeServerPort, int systemPort, int wdaLocalPort) {
+        nextAppiumPort = appiumPort;
+        nextNodeServerPort = nodeServerPort;
+        if (systemPort > 0) {
+            nextSystemPort = systemPort;
+        }
+        if (wdaLocalPort > 0) {
+            nextWdaLocalPort = wdaLocalPort;
+        }
+    }
 }

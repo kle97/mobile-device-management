@@ -4,8 +4,6 @@ public interface Device {
 
     String getUdid();
 
-    String getTransportId();
-
     String getDeviceName();
 
     String getPlatformName();

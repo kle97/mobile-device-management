@@ -26,6 +26,7 @@ public class AdbService {
                 String udid = getUdid(line);
                 String deviceName = getDeviceName(line);
                 String platformVersion = getPlatformVersion(transportId);
+                log.info(line);
 
                 AndroidDevice device = new AndroidDevice(udid, transportId, deviceName, ANDROID_PLATFORM_NAME, 
                                                          platformVersion, DEFAULT_AUTOMATION_NAME);

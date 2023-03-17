@@ -27,6 +27,8 @@ public class DeviceConfig {
     private final Device device;
     private final int appiumPort;
     private final int nodePort;
+    private int systemPort;
+    private int wdaLocalPort;
     private final ObjectNode defaultCapabilities;
 
     public DeviceConfig(AppConfig appConfig, Device device) {
@@ -45,8 +47,10 @@ public class DeviceConfig {
         node.put("appium:platformVersion", device.getPlatformVersion());
         node.put("appium:automationName", device.getAutomationName());
         if (device instanceof AndroidDevice) {
-            node.put("appium:systemPort", PortManager.getNextSystemPort());
+            systemPort = PortManager.getNextSystemPort();
+            node.put("appium:systemPort", systemPort);
         } else {
+            wdaLocalPort = PortManager.getNextWdaLocalPort();
             node.put("appium:wdaLocalPort", PortManager.getNextWdaLocalPort());
         }
         return node;
@@ -112,5 +116,9 @@ public class DeviceConfig {
             log.debug(e.getMessage());
         }
         return null;
+    }
+    
+    public void rollbackPorts() {
+        PortManager.rollbackPorts(appiumPort, nodePort, systemPort, wdaLocalPort);
     }
 }

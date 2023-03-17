@@ -1,5 +1,5 @@
 [distributor]
-healthcheck-interval = 60
+healthcheck-interval = 30
 reject-unsupported-caps = true
 
 [server]

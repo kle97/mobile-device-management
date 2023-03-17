@@ -45,4 +45,7 @@ public class AppConfig {
 
     @JsonProperty("appium.allow-insecure")
     String allowInsecure = "";
+    
+    @JsonProperty("scan-period-in-second")
+    int scanPeriodInSecond;
 }
