@@ -19,6 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -96,6 +98,25 @@ public class DeviceManager {
         }
         return serverStarted;
     }
+
+    public boolean startAppiumServerInBackground(Path appiumConfigFile) {
+        AtomicBoolean serverStarted = new AtomicBoolean(false);
+        String configFilePath = appiumConfigFile.toAbsolutePath().toString();
+        String logFilePath =  configFilePath.replace(appConfig.getConfigDirectory(), appConfig.getLogDirectory())
+                                            .replace(".json", "-appium.log");
+
+        Consumer<String> consumer = (str) -> {
+            if (str.contains("Appium REST http interface listener started")) {
+                log.info(str);
+                serverStarted.set(true);
+            }
+        };
+
+        CommandLine.runInBackground(String.format("appium --config %s", configFilePath), consumer, 15);
+        return serverStarted.get();
+    }
+    
+    
 
     public boolean registerNode(Path nodeConfigFile) {
         boolean nodeRegistered = false;

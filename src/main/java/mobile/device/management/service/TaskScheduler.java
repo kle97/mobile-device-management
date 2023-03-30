@@ -11,6 +11,7 @@ public class TaskScheduler {
 
     public static void schedulePeriodicTask(Runnable command, long initialDelay, long period, TimeUnit timeUnit) {
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> stopScheduleService(scheduledExecutorService)));
         scheduledExecutorService.scheduleAtFixedRate(command, initialDelay, period, timeUnit);
         log.info("Service is scheduled to run every {} {} with {} {} delay!",
                  period, getTimeUnitName(timeUnit), initialDelay, getTimeUnitName(timeUnit));
@@ -27,6 +28,7 @@ public class TaskScheduler {
     public static void schedulePeriodicTask(Runnable command, long initialDelay, long period,
                                             TimeUnit timeUnit, long duration, TimeUnit durationTimeUnit) {
         ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> stopScheduleService(scheduledExecutorService)));
         scheduledExecutorService.scheduleAtFixedRate(command, initialDelay, period, timeUnit);
         scheduledExecutorService.schedule(() -> stopScheduleService(scheduledExecutorService), duration, durationTimeUnit);
         log.info("Service is scheduled to run every {} {} with {} {} delay!",

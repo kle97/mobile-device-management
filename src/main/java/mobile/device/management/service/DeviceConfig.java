@@ -68,6 +68,8 @@ public class DeviceConfig {
             node.put("base-path", appConfig.getBasePath());
             node.put("keep-alive-timeout", appConfig.getKeepAliveTimeout());
             node.put("log-no-colors", true);
+            node.put("local-timezone", true);
+            node.put("log-timestamp", true);
             ArrayNode driverArray = (ArrayNode) objectReader.createArrayNode();
             node.set("use-drivers", driverArray.add(this.device.getAutomationName().toLowerCase()));
             ArrayNode allowInsecureArray = (ArrayNode) objectReader.createArrayNode();
